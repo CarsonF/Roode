@@ -58,7 +58,11 @@ VL53L1_Error VL53L1X::init() {
 
   VL53L1_Error status;
 
-  // If address is non-default, set and try again.
+  status = wait_for_boot();
+  if (status != VL53L1_ERROR_NONE) {
+    return status;
+  }
+
   if (address_ != (sensor.GetI2CAddress() >> 1)) {
     ESP_LOGD(TAG, "Setting different address");
     status = sensor.SetI2CAddress(address_ << 1);
@@ -66,6 +70,7 @@ VL53L1_Error VL53L1X::init() {
       ESP_LOGE(TAG, "Failed to change address. Error: %d", status);
       return status;
     }
+    delay(100);
   }
 
   status = wait_for_boot();
